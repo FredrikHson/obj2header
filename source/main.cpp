@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <getopt.h>
+#include <ctype.h>
 #include "fast_obj_loader.h"
 #include "fastdynamic2.h"
 
@@ -24,7 +25,10 @@ struct Model
  * format spec
  * float ${filename}_verts[]
  * float ${filename}_vertuvs[]
+ * unsigned int ${filename}_triangles[]
  * unsigned int ${filename}_numVerts
+ * unsigned int ${filename}_numUvs
+ * unsigned int ${filename}_numTriangles
  */
 
 int main(int argc, char* argv[])
@@ -59,6 +63,8 @@ int main(int argc, char* argv[])
             {
                 printf("-i   input file\n");
                 printf("-o   output file\n");
+                printf("make sure to triangulate the model on export\n");
+                return 0;
                 break;
             }
 
@@ -91,9 +97,31 @@ int main(int argc, char* argv[])
         output = fopen(outputfilename, "wb");
     }
 
-    fprintf(output, "unsigned int %s_numverts = %i;\n\n", inputfilename, model->numverts);
-    fprintf(output, "float %s_verts[%i] =\n{\n", inputfilename, model->numverts * 3);
+    char variablepart[FILENAME_MAX] = {0};
+    snprintf(variablepart, FILENAME_MAX, "%s", inputfilename);
     int i = 0;
+
+    while(i < FILENAME_MAX)
+    {
+        if(variablepart[i] == 0)
+        {
+            break;
+        }
+        else if(variablepart[i] == '/')
+        {
+            variablepart[i] = '_';
+        }
+        else if(variablepart[i] == '.')
+        {
+            variablepart[i] = '_';
+        }
+
+        variablepart[i] = tolower(variablepart[i]);
+        i++;
+    }
+
+    fprintf(output, "unsigned int %s_numverts = %i;\n\n", variablepart, model->numverts);
+    fprintf(output, "float %s_verts[%i] =\n{\n", variablepart, model->numverts * 3);
 
     for(i = 0; i < model->numverts - 1; i++)
     {
@@ -103,6 +131,20 @@ int main(int argc, char* argv[])
     fprintf(output, "    %f, %f, %f\n", model->verts[i].x, model->verts[i].y, model->verts[i].z);
 
     fprintf(output, "};\n");
+
+    if(outputuvs)
+    {
+        fprintf(output, "float %s_verts[%i] =\n{\n", variablepart, model->numuvs * 2);
+
+        for(i = 0; i < model->numuvs - 1; i++)
+        {
+            fprintf(output, "    %f, %f,\n", model->uvs[i].x, model->uvs[i].y);
+        }
+
+        fprintf(output, "    %f, %f\n", model->uvs[i].x, model->uvs[i].y);
+        fprintf(output, "};\n");
+
+    }
 
     if(output != stderr)
     {
