@@ -19,6 +19,7 @@ struct Model
     unsigned int numVerts;
     unsigned int numFrames;
     unsigned int* index; // *3 in size
+    unsigned int* indexuv; // *3 in size
 };
 */
 /*
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
             {
                 printf("-i   input file\n");
                 printf("-o   output file\n");
-                printf("make sure to triangulate the model on export\n");
+                //printf("make sure to triangulate the model on export\n");
                 return 0;
                 break;
             }
@@ -121,6 +122,7 @@ int main(int argc, char* argv[])
     }
 
     fprintf(output, "unsigned int %s_numverts = %i;\n\n", variablepart, model->numverts);
+    fprintf(output, "unsigned int %s_numtriangles = %i;\n\n", variablepart, model->numfaces);
     fprintf(output, "float %s_verts[%i] =\n{\n", variablepart, model->numverts * 3);
 
     for(i = 0; i < model->numverts - 1; i++)
@@ -132,9 +134,9 @@ int main(int argc, char* argv[])
 
     fprintf(output, "};\n");
 
-    if(outputuvs)
+    if(outputuvs && model->numuvs != 0)
     {
-        fprintf(output, "float %s_verts[%i] =\n{\n", variablepart, model->numuvs * 2);
+        fprintf(output, "float %s_uvs[%i] =\n{\n", variablepart, model->numuvs * 2);
 
         for(i = 0; i < model->numuvs - 1; i++)
         {
@@ -144,7 +146,41 @@ int main(int argc, char* argv[])
         fprintf(output, "    %f, %f\n", model->uvs[i].x, model->uvs[i].y);
         fprintf(output, "};\n");
 
+        fprintf(output, "float %s_uvindex[%i] =\n{\n", variablepart, model->numfaces * 3);
+
+        for(i = 0; i < model->numfaces - 1; i++)
+        {
+            fprintf(output, "    %u, %u, %u,\n",
+                    model->faces[i].uvs[0] - 1,
+                    model->faces[i].uvs[1] - 1,
+                    model->faces[i].uvs[2] - 1);
+        }
+
+        fprintf(output, "    %u, %u, %u\n",
+                model->faces[i].uvs[0] - 1,
+                model->faces[i].uvs[1] - 1,
+                model->faces[i].uvs[2] - 1);
+        fprintf(output, "};\n");
     }
+
+
+    fprintf(output, "float %s_posindex[%i] =\n{\n", variablepart, model->numfaces * 3);
+
+    for(i = 0; i < model->numfaces - 1; i++)
+    {
+        fprintf(output, "    %u, %u, %u,\n",
+                model->faces[i].verts[0] - 1,
+                model->faces[i].verts[1] - 1,
+                model->faces[i].verts[2] - 1);
+    }
+
+    fprintf(output, "    %u, %u, %u\n",
+            model->faces[i].verts[0] - 1,
+            model->faces[i].verts[1] - 1,
+            model->faces[i].verts[2] - 1);
+    fprintf(output, "};\n");
+
+
 
     if(output != stderr)
     {
