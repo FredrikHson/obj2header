@@ -60,11 +60,13 @@ int main(int argc, char* argv[])
                 outputuvs = false;
                 break;
             }
+
             case 'n':
             {
                 outputnormals = false;
                 break;
             }
+
             case 'h':
             {
                 printf("-i   input file\n");
@@ -126,7 +128,18 @@ int main(int argc, char* argv[])
         i++;
     }
 
-    fprintf(output, "unsigned int %s_numverts = %i;\n\n", variablepart, model->numverts);
+    fprintf(output, "unsigned int %s_numverts     = %i;\n", variablepart, model->numverts);
+
+    if(outputuvs && model->numuvs != 0)
+    {
+        fprintf(output, "unsigned int %s_numuvs       = %i;\n", variablepart, model->numuvs);
+    }
+
+    if(outputnormals && model->numnormals != 0)
+    {
+        fprintf(output, "unsigned int %s_numnormals   = %i;\n", variablepart, model->numnormals);
+    }
+
     fprintf(output, "unsigned int %s_numtriangles = %i;\n\n", variablepart, model->numfaces);
     fprintf(output, "float %s_verts[%i] =\n{\n", variablepart, model->numverts * 3);
 
@@ -151,21 +164,6 @@ int main(int argc, char* argv[])
         fprintf(output, "    %f, %f\n", model->uvs[i].x, model->uvs[i].y);
         fprintf(output, "};\n");
 
-        fprintf(output, "float %s_uvindex[%i] =\n{\n", variablepart, model->numfaces * 3);
-
-        for(i = 0; i < model->numfaces - 1; i++)
-        {
-            fprintf(output, "    %u, %u, %u,\n",
-                    model->faces[i].uvs[0] - 1,
-                    model->faces[i].uvs[1] - 1,
-                    model->faces[i].uvs[2] - 1);
-        }
-
-        fprintf(output, "    %u, %u, %u\n",
-                model->faces[i].uvs[0] - 1,
-                model->faces[i].uvs[1] - 1,
-                model->faces[i].uvs[2] - 1);
-        fprintf(output, "};\n");
     }
 
     if(outputnormals && model->numnormals != 0)
@@ -180,21 +178,6 @@ int main(int argc, char* argv[])
         fprintf(output, "    %f, %f, %f\n", model->normals[i].x, model->normals[i].y, model->normals[i].z);
         fprintf(output, "};\n");
 
-        fprintf(output, "float %s_uvindex[%i] =\n{\n", variablepart, model->numfaces * 3);
-
-        for(i = 0; i < model->numfaces - 1; i++)
-        {
-            fprintf(output, "    %u, %u, %u,\n",
-                    model->faces[i].normals[0] - 1,
-                    model->faces[i].normals[1] - 1,
-                    model->faces[i].normals[2] - 1);
-        }
-
-        fprintf(output, "    %u, %u, %u\n",
-                model->faces[i].normals[0] - 1,
-                model->faces[i].normals[1] - 1,
-                model->faces[i].normals[2] - 1);
-        fprintf(output, "};\n");
     }
 
 
@@ -214,6 +197,43 @@ int main(int argc, char* argv[])
             model->faces[i].verts[2] - 1);
     fprintf(output, "};\n");
 
+    if(outputuvs && model->numuvs != 0)
+    {
+        fprintf(output, "float %s_uvindex[%i] =\n{\n", variablepart, model->numfaces * 3);
+
+        for(i = 0; i < model->numfaces - 1; i++)
+        {
+            fprintf(output, "    %u, %u, %u,\n",
+                    model->faces[i].uvs[0] - 1,
+                    model->faces[i].uvs[1] - 1,
+                    model->faces[i].uvs[2] - 1);
+        }
+
+        fprintf(output, "    %u, %u, %u\n",
+                model->faces[i].uvs[0] - 1,
+                model->faces[i].uvs[1] - 1,
+                model->faces[i].uvs[2] - 1);
+        fprintf(output, "};\n");
+    }
+
+    if(outputnormals && model->numnormals != 0)
+    {
+        fprintf(output, "float %s_normalindex[%i] =\n{\n", variablepart, model->numfaces * 3);
+
+        for(i = 0; i < model->numfaces - 1; i++)
+        {
+            fprintf(output, "    %u, %u, %u,\n",
+                    model->faces[i].normals[0] - 1,
+                    model->faces[i].normals[1] - 1,
+                    model->faces[i].normals[2] - 1);
+        }
+
+        fprintf(output, "    %u, %u, %u\n",
+                model->faces[i].normals[0] - 1,
+                model->faces[i].normals[1] - 1,
+                model->faces[i].normals[2] - 1);
+        fprintf(output, "};\n");
+    }
 
 
     if(output != stderr)
