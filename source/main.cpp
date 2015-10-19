@@ -8,28 +8,16 @@ char inputfilename[FILENAME_MAX] = {0};
 char outputfilename[FILENAME_MAX] = {0};
 
 /*
-struct Frame
-{
-    float* vertPos; // *3
-};
-struct Model
-{
-    struct Frame* frames;
-    float* vertUVs; // *2
-    unsigned int numVerts;
-    unsigned int numFrames;
-    unsigned int* index; // *3 in size
-    unsigned int* indexuv; // *3 in size
-};
-*/
-/*
  * format spec
+ * unsigned int ${filename}_numverts
+ * unsigned int ${filename}_numuvs
+ * unsigned int ${filename}_numtriangles
  * float ${filename}_verts[]
- * float ${filename}_vertuvs[]
- * unsigned int ${filename}_triangles[]
- * unsigned int ${filename}_numVerts
- * unsigned int ${filename}_numUvs
- * unsigned int ${filename}_numTriangles
+ * float ${filename}_uvs[]
+ * float ${filename}_normals[]
+ * unsigned int ${filename}_posindex[]
+ * unsigned int ${filename}_uvindex[]
+ * unsigned int ${filename}_normalindex[]
  */
 
 int main(int argc, char* argv[])
