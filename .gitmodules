@@ -1,0 +1,3 @@
+[submodule "fast_obj_loader"]
+    path = fast_obj_loader
+    url = https://github.com/FredrikHson/fast_obj_loader.git

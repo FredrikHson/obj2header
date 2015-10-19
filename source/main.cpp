@@ -71,7 +71,8 @@ int main(int argc, char* argv[])
             {
                 printf("-i   input file\n");
                 printf("-o   output file\n");
-                //printf("make sure to triangulate the model on export\n");
+                printf("-u   do not output uvs\n");
+                printf("-n   do not output normals\n");
                 return 0;
                 break;
             }
