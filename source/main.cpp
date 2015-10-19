@@ -92,6 +92,11 @@ int main(int argc, char* argv[])
     else
     {
         model = loadObj(inputfilename);
+
+        if(model == 0)
+        {
+            return 1;
+        }
     }
 
     FILE* output = 0;
