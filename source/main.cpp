@@ -37,8 +37,9 @@ int main(int argc, char* argv[])
 
     int c;
     bool outputuvs = true;
+    bool outputnormals = true;
 
-    while((c = getopt(argc, argv, "i:o:hu")) != -1)
+    while((c = getopt(argc, argv, "i:o:hun")) != -1)
     {
         switch(c)
         {
@@ -59,7 +60,11 @@ int main(int argc, char* argv[])
                 outputuvs = false;
                 break;
             }
-
+            case 'n':
+            {
+                outputnormals = false;
+                break;
+            }
             case 'h':
             {
                 printf("-i   input file\n");
@@ -160,6 +165,35 @@ int main(int argc, char* argv[])
                 model->faces[i].uvs[0] - 1,
                 model->faces[i].uvs[1] - 1,
                 model->faces[i].uvs[2] - 1);
+        fprintf(output, "};\n");
+    }
+
+    if(outputnormals && model->numnormals != 0)
+    {
+        fprintf(output, "float %s_normals[%i] =\n{\n", variablepart, model->numnormals * 2);
+
+        for(i = 0; i < model->numnormals - 1; i++)
+        {
+            fprintf(output, "    %f, %f, %f,\n", model->normals[i].x, model->normals[i].y, model->normals[i].z);
+        }
+
+        fprintf(output, "    %f, %f, %f\n", model->normals[i].x, model->normals[i].y, model->normals[i].z);
+        fprintf(output, "};\n");
+
+        fprintf(output, "float %s_uvindex[%i] =\n{\n", variablepart, model->numfaces * 3);
+
+        for(i = 0; i < model->numfaces - 1; i++)
+        {
+            fprintf(output, "    %u, %u, %u,\n",
+                    model->faces[i].normals[0] - 1,
+                    model->faces[i].normals[1] - 1,
+                    model->faces[i].normals[2] - 1);
+        }
+
+        fprintf(output, "    %u, %u, %u\n",
+                model->faces[i].normals[0] - 1,
+                model->faces[i].normals[1] - 1,
+                model->faces[i].normals[2] - 1);
         fprintf(output, "};\n");
     }
 
